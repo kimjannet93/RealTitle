@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}
+기사 키워드 분석
+{% endblock %}
+
+{% block content %}
+<style>@import url('https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&display=swap');</style>
+
+<div class="bradcam_area mybradcam_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="bradcam_text text-center">
+                    <h3>기사 키워드 분석</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="blog_area single-post-area section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 posts-list">
+                <div class="single-post">
+                    <div class="blog_details">
+                        <div class="row justify-content-between" style="padding: 0px 15px 0px 15px;">
+                            <div>
+                                <div class="alert alert-primary" role="alert">
+                                    "기사에서 많이 언급된 키워드를 보여드립니다"
+                                  </div>
+                            </div>
+                            <div>
+                                <!-- <input type="button" value="원문보기"> -->
+                                <a class="" href="{{article_url}}" target="_blank"><button type="button" class="btn btn-primary">기사원문보기</button></a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <table id="wordcount" class="table table-bordered">
+                                    <thead class="text-center">
+                                        <tr>
+                                            <th width=20%>구분</th>
+                                            <th width=60%>단어</th>
+                                            <th width=20%>빈도</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for value in count %}
+                                        <tr>
+                                            <td>{{forloop.counter}}</td>
+                                            <td>{{value.0}}</td>
+                                            <td>{{value.1}}</td>
+                                        </tr>    
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="card text-center col-lg-8">
+                                <div class="card-header">
+                                    <nav>
+                                        <div class="nav nav-tabs card-header-tabs"  id="nav-tab" role="tablist">
+                                            <a class="nav-item nav-link active" id="nav-wordcloud-tab" data-toggle="tab" href="#nav-wordcloud" role="tab" aria-controls="nav-wordcloud" aria-selected="true">WordCloud</a>
+                                            <a class="nav-item nav-link" id="nav-bar-tab" data-toggle="tab" href="#nav-bar" role="tab" aria-controls="nav-bar" aria-selected="false">BarChart</a>
+                                            <a class="nav-item nav-link" id="nav-networkx-tab" data-toggle="tab" href="#nav-networkx" role="tab" aria-controls="nav-networkx" aria-selected="false">networkx</a>
+                                        </div>
+                                    </nav>
+                                </div>
+                                <div class="card-body tab-content" id="nav-tabContent"><!--  https://getbootstrap.com/docs/4.0/components/navs/ -->
+                                  <!-- <h5 class="card-title">Special title treatment</h5> -->
+                                  <!-- <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> -->
+                                  <div class="tab-pane fade show active" id="nav-wordcloud" role="tabpanel" aria-labelledby="nav-wordcloud-tab">
+                                    <img id="wordcloud" src="{{wordcloud}}" alt="" style="width:100%;">
+                                  </div>
+                                  <div class="tab-pane fade" id="nav-bar" role="tabpanel" aria-labelledby="nav-bar-tab">
+                                    <img id="barchart" src="{{barchart}}" alt="" style="width:100%;">
+                                  </div>
+                                  <div class="tab-pane fade" id="nav-networkx" role="tabpanel" aria-labelledby="nav-networkx-tab">
+                                    <img id="networkx" src="{{networkx}}" alt="" style="width:100%;">
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <h2>{{ post.article_title }}</h2>
+                        <p class="excert">
+                            {{ post.article_content }}
+                        </p> -->
+                    </div>
+                    <!-- <button id="btn" >table뿌리기</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}
+TEST_RENDER_TOSTRING
+{% endblock %}
+
+{% block content %}
+<div class="bradcam_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="bradcam_text text-center">
+                    <h3># TEST_RENDER_TOSTRING</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="blog_area single-post-area section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 posts-list">
+                <div class="single-post">
+                    <div class="blog_details">
+                        <!-- <h2>{{ post.article_title }}</h2>
+                        <p class="excert">
+                            {{ post.article_content }}
+                        </p> -->
+                     
+                    </div>
+                    <button id="btn" >table뿌리기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block script %}
+<script>
+
+
+    $('#btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+        url:'/renderToStringTest/'
+        ,type:'post'
+        ,success:function(result){
+            alert(result)
+            $('.blog_details').html(result)
+        },
+        error:function(result){
+            alert("실패")
+        }
+      });
+    });
+
+
+    var queryset = JSON.parse('{{ data | escapejs }}'); 
+    console.log(typeof(queryset), queryset)
+    // // if asc = data / if desc => pop()
+    // // first, asc
+    var node = $('article .blog_details')
+
+    $('#sort_icon').click(function() {
+        sort_method = $('#sort_method').val()
+        console.log(sort_method)
+        
+        // if (sort_method == 'desc'){
+        //     dataset = queryset
+        // }else if (sort_method == 'asc'){
+        //     dataset = queryset.reverse()
+        // }
+        $.each(queryset.reverse(),function(index, item){
+            // console.log(index, item)
+            // console.log(item.fields.article_title)
+            var thisnode = node.eq(index)
+            thisnode.children("a").attr('href', item.fields.article_url)                         // 제목에 달린 url
+            thisnode.children(".d-inline-block").children('h3').html('ourtitle'+index )         // 우리 제목
+            thisnode.children("p").eq(0).html(item.fields.article_title)                        // 원제 
+            thisnode.children("p").eq(1).find("a").attr('href')       // 언론사 url
+            thisnode.children("p").eq(1).find("a").html(item.fields.article_media)             // 언론사 이름
+            thisnode.find("p span").eq(1).html(item.fields.article_category + "&nbsp;&nbsp;|&nbsp;&nbsp;"+item.fields.article_date)                       // 카테고리 및 날짜
+
+            // console.log(thisnode.find("ul li a").eq(0).attr('href') )               // 원문보기 url 
+            thisnode.find("ul li a").eq(0).attr('href', item.fields.article_url)                // 원문보기 url 
+            thisnode.find("ul li a").eq(1).attr('href', "/article_analysis?article_id=" + item.pk)                // 분석보기 url
+        })
+
+
+        if(sort_method == 'asc') {
+            $('#sort_method').val('desc')
+            $('#sort_desc').attr('class', 'display-none')
+            $('#sort_asc').removeAttr('class')
+        } else {
+            $('#sort_method').val('asc')
+            $('#sort_asc').attr('class', 'display-none')
+            $('#sort_desc').removeAttr('class')
+        }
+    });
+</script>
+{% endblock %}

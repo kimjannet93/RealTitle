@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}
+기사 키워드 분석
+{% endblock %}
+
+{% block content %}
+<div class="bradcam_area mybradcam_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&display=swap');
+                </style>
+                <div class="bradcam_text text-center">
+                    <h3>기사 키워드 분석</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="blog_area single-post-area section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 posts-list">
+                <div class="single-post">
+                    <div class="blog_details">
+                        <h4><strong>분석하고 싶은 기사 내용을 입력해 주세요</strong></h4>
+                        <!-- <p class="excert"> -->
+                        <textarea id="input-data", name="article_content"  autofocus=True, rows=10, placeholder='기사 내용을 입력해주세요.', style="margin: 0px 1px 0px 0px; width:100%; height:437px; font-size: 14px;"></textarea>
+                        <div class="row justify-content-between">
+                            <input class="send_text_btn col-sm-2 btn btn-primary" type="button" value="시작", style="margin: 0px 15px 10px 15px;"; />
+                            <span id="checkTextArea", class="col-sm-2 text-right" style="padding: 0px 10px 0px 5px;">0 / 2000</span>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <table id="wordcount" class="table table-bordered">
+                                    <thead class="text-center">
+                                        <tr>
+                                            <th width=20%>구분</th>
+                                            <th width=60%>단어</th>
+                                            <th width=20%>빈도</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="card text-center col-lg-8">
+                                <div class="card-header">
+                                    <nav>
+                                        <div class="nav nav-tabs card-header-tabs"  id="nav-tab" role="tablist">
+                                            <a class="nav-item nav-link active" id="nav-wordcloud-tab" data-toggle="tab" href="#nav-wordcloud" role="tab" aria-controls="nav-wordcloud" aria-selected="true">WordCloud</a>
+                                            <a class="nav-item nav-link" id="nav-bar-tab" data-toggle="tab" href="#nav-bar" role="tab" aria-controls="nav-bar" aria-selected="false">BarChart</a>
+                                            <a class="nav-item nav-link" id="nav-networkx-tab" data-toggle="tab" href="#nav-networkx" role="tab" aria-controls="nav-networkx" aria-selected="false">networkx</a>
+                                        </div>
+                                    </nav>
+                                </div>
+                                <div class="card-body tab-content" id="nav-tabContent"><!--  https://getbootstrap.com/docs/4.0/components/navs/ -->
+                                  <!-- <h5 class="card-title">Special title treatment</h5> -->
+                                  <!-- <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> -->
+                                  <div class="tab-pane fade show active" id="nav-wordcloud" role="tabpanel" aria-labelledby="nav-wordcloud-tab">
+                                    <img id="wordcloud" src="" alt="" style="width:100%;">
+                                  </div>
+                                  <div class="tab-pane fade" id="nav-bar" role="tabpanel" aria-labelledby="nav-bar-tab">
+                                    <img id="barchart" src="" alt="" style="width:100%;">
+                                  </div>
+                                  <div class="tab-pane fade" id="nav-networkx" role="tabpanel" aria-labelledby="nav-networkx-tab">
+                                    <img id="networkx" src="" alt="" style="width:100%;">
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- </p> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+    /**
+    * 글자수(바이트 체크)
+    * @param oid : 글자를 받을 Textarea ID
+    * @param tid : 바이트 체크된 값 리턴될 엘리먼트 ID
+    */
+    function pubByteCheckTextarea(oid,tid){
+        $(oid).on("keyup",function(){
+            var limitLength = 2000
+            var byteTxt = "";
+            var byte = function(str){
+                var byteNum=0;
+                for(i=0;i<str.length;i++){
+                    byteNum+=(str.charCodeAt(i)>127)?2:1;
+                    if(byteNum<500){
+                        byteTxt+=str.charAt(i);
+                    };
+                };
+                return Math.round( byteNum/2 );
+            };
+            if(byte($(this).val())>limitLength){
+                alert("2000자 이상 입력할수 없습니다.");
+                $(this).val("");
+                $(this).val(byteTxt);
+            }else{
+                $(tid).html( byte($(this).val()) + " / " + limitLength )
+            }
+        });
+    };
+    // 글자수 세기 스타트
+    pubByteCheckTextarea( $("#input-data"), $("#checkTextArea") )
+
+    $(function(){
+        $('.send_text_btn').click(function(e){
+            e.preventDefault();
+            var textData = $('#input-data');
+            $.ajax({
+                url:'/aritcle_keyword_visualization/'
+                ,type:'post'
+                ,dataType:'json'
+                ,data: textData.serialize()
+                ,success:function(result){
+                    $("#wordcount tbody").empty();
+                    // alert(result['wordCount'][0])
+                    $.each(result['wordCount'], function( index, counter ){
+                        // console.log(this);
+                        var dicts = counter
+                        // console.log(typeof(counter), counter)
+                        var word = dicts[0]
+                        var count = dicts[1]
+                        $("#wordcount tbody").append(
+                            "<tr><td>" + (index + 1) + "</td><td>" + word + "</td><td>" + count + "</td></tr>"
+                        )
+                    })
+                    $('#wordcloud').attr("src", result['wordcloudURI']);
+                    $('#barchart').attr("src", result['barURI']);
+                    $('#networkx').attr("src", result['networkx']);
+                },
+                error:function(result){
+                    alert('')
+                }
+            });
+        });
+    });
+
+    
+</script>
+{% endblock %}

@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}
+기사 리스트
+{% endblock %}
+
+{% block content %}
+<div class="bradcam_area mybradcam_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&display=swap');
+                </style>
+                <div class="bradcam_text text-center">
+                    {% if media != '' %}    
+                    <h3>{{ media }} 기사 리스트</h3>
+                    {% elif cagegory != '' %}
+                    <h3>{{ category }} 기사 리스트</h3>
+                    {% else %}
+                    <h3># 전체 기사 리스트</h3>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="blog_area section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mb-5 mb-lg-0">
+                <div class="blog_left_sidebar">
+                    <!-- 이하 반복문 처리 -->
+                    {% if search_keyword != '' %}
+                    <p>'{{ search_keyword }}'(으)로 검색된 결과 : {{ total_count }}건</p>
+                    {% else %}
+                    <p>전체 검색된 결과 : {{ total_count }}건</p>
+                    {% endif %}
+
+                    <ul class="blog-info-link justify-content-end d-flex">
+                        <li>청정도 순 정렬</li>
+                        <div id="sort_icon">
+                            <div id="sort_desc">
+                                <li><a href="#"><i class="fa fa-sort-amount-desc" aria-hidden="true">&nbsp;내림차순</i></a></li>
+                                
+                            </div>
+                            <div id="sort_asc" class="display-none">
+                                <li><a href="#"><i class="fa fa-sort-amount-asc" aria-hidden="true">&nbsp;오름차순</i></a></li>
+                            </div>
+                        </div>
+                        <input type="hidden" id="search_keyword" value="{{ search_keyword }}">
+                        <input type="hidden" id="media" value="{{ media }}">
+                        <input type="hidden" id="category" value="{{ category }}">
+                        <input type="hidden" id="page" value="{{ page }}">
+                        <input type="hidden" id="sort_method" value="asc">
+                    </ul>
+
+                    {% for tmp in posts %}
+                    <article class="blog_item">
+                        <div class="blog_details">
+                            <a class="d-inline-block" href="{{ tmp.article_url }}" target="_blank">
+                                <h3>{{ tmp.result_newtitle }}</h3>
+                            </a>
+                            <p>{{ tmp.article_title }}</p>
+                            <p style="margin-bottom: -25px;"><span style="font-size: 14px; font-weight: bold;"><a {% if tmp.media_url != '' %} href="{{ tmp.media_url }}"  target="_blank" {% else %} href="#" {% endif %}>{{ tmp.article_media }}</a></span><span style="font-size: 12px; margin-left: 10px;">{{ tmp.article_category }}&nbsp;&nbsp;|&nbsp;&nbsp;{{ tmp.article_date }}</span><span style="font-size: small; font-weight: bold; {% if tmp.result_acc < 50 %} color: red;{% elif tmp.result_acc >= 50 and tmp.result_acc < 80 %} color: orange; {% elif tmp.result_acc >= 80 and tmp.result_acc <= 100 %} color: limegreen; {% else %} color: lightgray; {% endif %}">&nbsp;&nbsp;&nbsp;청정도 : {% if tmp.result_acc != '' %}{{ tmp.result_acc|floatformat }}%{% else %}없음{% endif %}</span></p>
+                            <ul class="blog-info-link justify-content-end d-flex">
+                                <li><a href="{{ tmp.article_url }}" target="_blank"><i class="fa fa-file-text-o"></i>원문 보기</a></li>
+                                <li><a href="/article_analysis?article_id={{ tmp.article_id }}"><i class="fa fa-bar-chart"></i>분석 보기</a></li>
+                            </ul>
+                        </div>
+                    </article>
+                    {% endfor %}
+
+                    <nav class="blog-pagination justify-content-center d-flex">
+                        <ul class="pagination">
+                            {% if posts.has_previous %}
+                            <li class="page-item">
+                                <a href="?page=1&media={{ media }}&category={{ category }}&search_keyword={{ search_keyword }}" class="page-link" aria-label="First">
+                                    <i class="ti-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a href="?page={{ posts.previous_page_number }}&media={{ media }}&category={{ category }}&search_keyword={{ search_keyword }}" class="page-link" aria-label="Previous">
+                                    <i class="ti-angle-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for i in p_range %}
+                            <li class="page-item">
+                                <a href="?page={{ i }}&media={{ media }}&category={{ category }}&search_keyword={{ search_keyword }}" {% if posts.number == i %} class="page-link page_active" {% else %} class="page-link" {% endif %}>{{ i }}</a>
+                            </li>
+                            {% endfor %}
+
+                            {% if posts.has_next %}
+                            <li class="page-item">
+                                <a href="?page={{ posts.next_page_number }}&media={{ media }}&category={{ category }}&search_keyword={{ search_keyword }}" class="page-link" aria-label="Next">
+                                    <i class="ti-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a href="?page={{ posts.paginator.num_pages }}&media={{ media }}&category={{ category }}&search_keyword={{ search_keyword }}" class="page-link" aria-label="End">
+                                    <i class="ti-angle-double-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="blog_right_sidebar">
+                    <aside class="single_sidebar_widget search_widget">
+                        <form action="/article_list" method='GET'>
+                            <div class="form-group">
+                                <div class="input-group mb-3">
+                                    <input type="hidden" name="media" value="{{ media }}">
+                                    <input type="hidden" name="category" value="{{ category }}">
+                                    <input type="text" class="form-control" name="search_keyword" placeholder='검색할 내용을 입력하세요.'
+                                        onfocus="this.placeholder = ''"
+                                        onblur="this.placeholder = '검색할 내용을 입력하세요.'">
+                                    <div class="input-group-append">
+                                        <button class="btn" type="submit"><i class="ti-search"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="button rounded-0 primary-bg text-white w-100 btn_1 boxed-btn"
+                                type="submit">{% if media != '' %}현재 언론사에서 검색{% elif category != '' %}현재 카테고리에서 검색{% else %}검색{% endif %}</button>
+                        </form>
+                    </aside>
+                    <aside class="single_sidebar_widget post_category_widget">
+                        <h4 class="widget_title">언론사</h4>
+                        <div style="overflow:auto; height:300px;">
+                        <ul class="list cat-list">
+                            <!-- 이하 반복문 처리 -->
+                            {% for tmp in media_list %}
+                            <li>
+                                <a href="?media={{ tmp.media_name }}" class="d-flex">
+                                    <p>{{ tmp.media_name }}</p>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        </div>
+                    </aside>
+                    <aside class="single_sidebar_widget post_category_widget">
+                        <h4 class="widget_title">카테고리</h4>
+                        <ul class="list cat-list">
+                            <!-- 이하 반복문 처리 -->
+                            {% for tmp in category_list %}
+                            <li>
+                                <a href="?category={{ tmp.category_name }}" class="d-flex">
+                                    <p>{{ tmp.category_name }}</p>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </aside>
+                    <aside class="single_sidebar_widget tag_cloud_widget">
+                        <h4 class="widget_title">주요 키워드</h4>
+                        <ul class="list">
+                            <!-- 이하 반복문 처리 -->
+                            {% for tmp in keyword_list %}
+                            <li>
+                                <a href="?search_keyword={{ tmp }}">{{ tmp }}</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="wrap-loading display-none">
+    <div class="loading-container">
+        <div class="loading"></div>
+        <div id="loading-text">loading</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+    var queryset = JSON.parse('{{ data | escapejs }}'); 
+    // console.log(typeof(queryset), queryset)
+
+    var node = $('article .blog_details')
+
+    $('#sort_icon').click(function() {
+        sort_method = $('#sort_method').val()
+        
+        $.each(queryset.reverse(),function(index, item){
+            // console.log(index, item)
+            // console.log(item.fields.result_newtitle)
+            var thisnode = node.eq(index)
+            if ( item.result_acc == ''){
+                var acc = '없음'
+            }else{
+                var index = item.result_acc.toString().indexOf('.')
+                var acc = ( index == -1 ) ? item.result_acc : Number(item.result_acc.toFixed(1))
+                console.log(typeof(acc),acc, index)
+            }
+            if(item.result_acc < 50){
+                thisnode.find("p span").eq(2).attr('style','font-size: small; font-weight: bold;color:red;')
+                thisnode.find("p span").eq(2).html("&nbsp;&nbsp;청정도 : " + acc +"%" );
+            }else if( item.result_acc >= 50 && item.result_acc < 80 ){
+                thisnode.find("p span").eq(2).attr('style','font-size: small; font-weight: bold;color:orange;')
+                thisnode.find("p span").eq(2).html("&nbsp;&nbsp;청정도 : " + acc +"%" );
+            }else if( item.result_acc >= 80 ){
+                thisnode.find("p span").eq(2).attr('style','font-size: small; font-weight: bold;color:limegreen ;')
+                thisnode.find("p span").eq(2).html("&nbsp;&nbsp;청정도 : " + acc +"%" );
+            }else{
+                thisnode.find("p span").eq(2).attr('style','font-size: small; font-weight: bold;color:lightgray ;')
+                thisnode.find("p span").eq(2).html("&nbsp;&nbsp;청정도 : " + acc );
+            }
+            thisnode.children("a").attr('href', item.article_url)                                // 제목에 달린 url
+            thisnode.children(".d-inline-block").children('h3').html(item.result_newtitle)       // 우리 제목
+            thisnode.children("p").eq(0).html(item.article_title)                                // 원제 
+            thisnode.children("p").eq(1).find("a").attr('href')                                  // 언론사 url
+            thisnode.children("p").eq(1).find("a").html(item.article_media)                      // 언론사 이름
+            thisnode.find("p span").eq(1).html(item.article_category + "&nbsp;&nbsp;|&nbsp;&nbsp;"+item.article_date)     // 카테고리 및 날짜
+                 // 카테고리 및 날짜
+            thisnode.find("ul li a").eq(0).attr('href', item.article_url)                        // 원문보기 url 
+            thisnode.find("ul li a").eq(1).attr('href', "/article_analysis?article_id=" + item.article_id)      // 분석보기 url
+        })
+
+        if(sort_method == 'asc') {
+            $('#sort_method').val('desc')
+            $('#sort_desc').attr('class', 'display-none')
+            $('#sort_asc').removeAttr('class')
+        } else {
+            $('#sort_method').val('asc')
+            $('#sort_asc').attr('class', 'display-none')
+            $('#sort_desc').removeAttr('class')
+        }
+    });
+</script>
+
+<!-- <script type="module">
+    import define from "/static/js/d3/index.js";
+    import {Runtime, Library, Inspector} from "/static/js/d3/runtime.js";
+
+    const runtime = new Runtime();
+    const main = runtime.module(define, Inspector.into(document.body));
+</script> -->
+{% endblock %}

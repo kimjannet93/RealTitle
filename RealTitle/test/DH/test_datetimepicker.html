@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p>Date: <input type="text" id="datepicker"></p>
+
+{% endblock %} 
+
+{% block script %}
+<script>
+  $( function() {
+    $( "#datepicker" ).datepicker({
+      dateFormat: 'yy-mm-dd',
+      dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+      // maxDate: new Date() // 이것도 사용가능.
+      maxDate: 0
+      // minDate : 0
+    });
+  } );
+</script>
+{% endblock %}

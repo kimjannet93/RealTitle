@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}
+Real Title
+{% endblock %}
+
+{% block content %}
+
+<!-- 검색 -->
+<div id="bradcam_area" class="bradcam_area slider_bg_1">
+    <div class="container justify-content-center d-flex">
+        <div class="row">
+            <div class="col-xl-12">                            
+                <div class="blog_right_sidebar">
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&display=swap');
+                    </style>
+                    <div id="bradcam_area2">
+                        <aside class="single_sidebar_widget search_widget">
+                            <form action="/article_list" method="GET">
+                                <div class="form-group">
+                                    <div class="input-group mb-3">
+                                        <input type="text" id="myform-control" class="form-control" name="search_keyword" placeholder='검색할 내용을 입력하세요.'
+                                            onfocus="this.placeholder = ''" onblur="this.placeholder = '검색할 내용을 입력하세요.'">
+                                        <div class="input-group-append">
+                                            <button id ="mybtn" class="btn" type="submit"><i class="ti-search"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--button class="button rounded-0 primary-bg text-white w-100 btn_1 boxed-btn" type="submit">검색</button-->
+                            </form>
+                        </aside>
+                        
+                            <p class="newsletter_text"><span style="background-color:#343a40; opacity:0.8"> Real Title은 신뢰할 수 있는 언론 환경 조성에 앞장서겠습니다! </span></p>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>    
+    </div>
+</div>
+<br>
+
+<!-- 언론사 별 기사 리스트 -->
+<div class="service_area myservice_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="section_title mb-50 text-center">
+                    <h4>
+                        언론사 별 기사 보기
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="service_active owl-carousel">
+                    <!-- 이하 반복문 처리 -->
+                    {% for media in media_list %}
+                    <div class="single_service">
+                        <div class="service_info">
+                            <a href="/article_list?media={{ media.0 }}"><img src="/static/img/media/{{ media.0 }}.png" style="width: 200px; margin-left: 60px;"></a>
+                            <br>
+                            <p style="margin-left: 60px;">'{{ media.0 }}'의 청정도 <br><span style="{% if media.1 < 50 %} color: red;{% elif media.1 >= 50 and media.1 < 80 %} color: orange; {% elif media.1 >= 80 and media.1 <= 100 %} color: limegreen; {% else %} color: lightgray; {% endif %}">{% if media.1 != ''%}{{ media.1|floatformat }}%{% else %}없음{% endif %}</span></p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+
+<!-- 카테고리 별 기사 리스트 -->
+<div class="service_area myservice_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="section_title mb-50 text-center">
+                    <h4>
+                        카테고리 별 기사 보기
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="service_active owl-carousel">
+                    <!-- 이하 반복문 처리 -->
+                    {% for key, value_list in category_list.items %}
+                    <div class="single_service">
+                        <div class="service_info">
+                            <div style="margin-left: 40px;">
+                                <!--h3><a href="/article_list?category={{ key }}"> {{ key }}</a></h3-->
+                                <h3><a href="/article_list?category={{ key }}"><img src="/static/img/category/{{ key }}.png" style="width: 100px;"></a></h3>
+                                <p>
+                                    {% for value in value_list %}
+                                        <a href="/article_list?category={{ key }}&search_keyword={{value.0}}">#{{value.0}}</a>
+                                        {% if forloop.counter == 2 %}
+                                </br>
+                                        {% endif  %}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

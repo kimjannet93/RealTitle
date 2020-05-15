@@ -1,0 +1,154 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+기사 리스트 sort test
+{% endblock %}
+
+
+{% block content %}
+{% for value in data %}
+<div style="display: None;">
+    {{value}}
+</div>
+{% endfor %}
+<ul class="blog-info-link justify-content-end d-flex"></ul>
+<li>정확도 순 정렬</li>
+                        <div id="sort_icon">
+                            <div id="sort_desc">
+                                <li><a href="#"><i class="fa fa-sort-amount-desc" aria-hidden="true">&nbsp;내림차순</i></a></li>
+                                
+                            </div>
+                            <div id="sort_asc" class="display-none">
+                                <li><a href="#"><i class="fa fa-sort-amount-asc" aria-hidden="true">&nbsp;오름차순</i></a></li>
+                            </div>
+                        </div>
+                        <div>
+</ul>
+    <article class="blog_item">
+        <div class="blog_details">
+            <a class="d-inline-block" href="#article_url1 " target="_blank">
+                <h3> article_title1 </h3>
+            </a>
+            <p> our_article_title1 </p>
+            <p style="margin-bottom: -25px;"><span style="font-size: 14px; font-weight: bold;"><a href=" #article_media_url1 " target="_blank"> article_media_name1 </a></span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size: 12px;"> article_category1 &nbsp;&nbsp;|&nbsp;&nbsp; article_date1 </span></p>
+            <ul class="blog-info-link justify-content-end d-flex">
+                <li><a href=" #article_url1 " target="_blank"><i class="fa fa-file-text-o"></i>원문 보기</a></li>
+                <li><a href=" #/article_analysis?article_id= article_id "><i class="fa fa-bar-chart"></i>분석 보기</a></li>
+            </ul>
+        </div>
+    </article>
+    <article class="blog_item">
+        <div class="blog_details">
+            <a class="d-inline-block" href="#article_url2 " target="_blank">
+                <h3> article_title2 </h3>
+            </a>
+            <p> our_article_title2 </p>
+            <p style="margin-bottom: -25px;"><span style="font-size: 14px; font-weight: bold;"><a href=" #article_media_url2 " target="_blank"> article_media_name2 </a></span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size: 12px;"> article_category2 &nbsp;&nbsp;|&nbsp;&nbsp; article_date2 </span></p>
+            <ul class="blog-info-link justify-content-end d-flex">
+                <li><a href=" #article_url2 " target="_blank"><i class="fa fa-file-text-o"></i>원문 보기</a></li>
+                <li><a href=" #/article_analysis?article_id= article_id "><i class="fa fa-bar-chart"></i>분석 보기</a></li>
+            </ul>
+        </div>
+    </article>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    
+    var queryset = JSON.parse('{{ data | escapejs }}'); 
+    console.log(typeof(queryset))
+    // // if asc = data / if desc => pop()
+    // // first, asc
+    var node = $('article .blog_details')
+
+    $('#sort_icon').click(function() {
+        // sort_method = $('#sort_method').val()
+        // alert(sort_method)
+        sort_method = 'desc'
+        if (sort_method == 'desc'){
+            $.each(queryset.reverse(),function(index, item){
+                console.log(index, item)
+                console.log(item.fields.article_title)
+                var thisnode = node.eq(index)
+                // console.log(thisnode.children("a").attr('href'))                        // 제목에 달린 url
+                thisnode.children("a").attr('href', item.fields.article_url)                         // 제목에 달린 url
+                // console.log(thisnode.children(".d-inline-block").children('h3').text()) // 원제제목
+                thisnode.children(".d-inline-block").children('h3').html(item.fields.article_title )
+                // console.log(thisnode.children("p").eq(0).text())                        // 우리의 제목
+                thisnode.children("p").eq(0).html('ourtitle'+index)                         // 우리의 제목
+                // console.log(thisnode.children("p").eq(1).find("a").attr('href') )       // 언론사 url
+                thisnode.children("p").eq(1).find("a").attr('href')       // 언론사 url
+                // console.log(thisnode.children("p").eq(1).find("a").text() )             // 언론사 이름
+                thisnode.children("p").eq(1).find("a").html(item.fields.article_media)             // 언론사 이름
+
+                // console.log(thisnode.find("p span").eq(1).text())                       // 카테고리 및 날짜
+                thisnode.find("p span").eq(1).html(item.fields.article_category)                       // 카테고리 및 날짜
+
+                console.log(thisnode.find("ul li a").eq(0).attr('href') )               // 원문보기 url 
+                console.log(thisnode.find("ul li a").eq(1).attr('href') )               // 분석보기 url
+            })
+        }
+    });
+        $.each(queryset,function(index, item){
+            console.log(index, item)
+            var thisnode = node.eq(index)
+            console.log(thisnode.children("a").attr('href'))                        // 제목에 달린 url
+            console.log(thisnode.children(".d-inline-block").children('h3').text()) // 원제제목
+            console.log(thisnode.children("p").eq(0).text())                        // 우리의 제목
+            console.log(thisnode.children("p").eq(1).find("a").attr('href') )       // 언론사 url
+            console.log(thisnode.children("p").eq(1).find("a").text() )             // 언론사 이름
+
+            console.log(thisnode.find("p span").eq(1).text())                       // 카테고리 및 날짜
+
+            console.log(thisnode.find("ul li a").eq(0).attr('href') )               // 원문보기 url 
+            console.log(thisnode.find("ul li a").eq(1).attr('href') )               // 분석보기 url
+        })
+
+
+    
+
+
+
+    ////////////////////////////////////////////////// TEST_02. 탐색완료
+    // $.each(node,function(value){
+    //     node01 = node.find('.blog_details')
+    //     console.log(node01.eq(value).children("a").attr('href'))
+    //     console.log(node01.eq(value).children(".d-inline-block").children('h3').text())
+    //     console.log(node01.eq(value).children("p").eq(0).text())
+    //     console.log(node01.eq(value).children("p").eq(1).find("a").attr('href') )
+    //     console.log(node01.eq(value).children("p").eq(1).find("a").text() )
+
+    //     console.log(node01.eq(value).find("p span").eq(1).text())
+
+    //     console.log(node01.eq(value).find("ul li a").eq(0).attr('href') )
+    //     console.log(node01.eq(value).find("ul li a").eq(1).attr('href') )
+    // })
+
+
+
+
+
+    ////////////////////////////////// TEST 01 _ 해당 노드에 경계선 만들거나 텍스트 가져오기 & 텍스트 변경
+    // $.each(node,function(value){
+    //     node01 = node.find('.blog_details')
+    //     // thisnode.css('border','4px solid #f00' )
+    //     // thisnode.find(".d-inline-block h3").css('border','4px solid #f00' )
+    //     // node02.children(".d-inline-block").eq(value).css('border','4px solid #f00' )
+    //     console.log(node01.children(".d-inline-block").eq(value).children('h3').text())
+    //     // console.log(node01.children(".d-inline-block").eq(value).children('h3').html('mytitle_'+value))
+    //     // console.log(one)
+    // })
+    // for (i=0; i<node.size(); i++){
+    //     console.log(i)
+        
+    //     // node.find('blog_details').css("boarder", "4px solid #f00")
+    // }
+
+    // console.log(data_array)
+    
+
+</script>
+{% endblock %}

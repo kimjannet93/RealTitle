@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}
+언론사 별 성향 분석
+{% endblock %}
+
+{% block content %}
+<div class="bradcam_area mybradcam_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&display=swap');
+                </style>
+                <div class="bradcam_text text-center">
+                    <h3>언론사 별 성향 분석</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 키워드 트렌드 -->
+<section class="blog_area section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-4">
+                <div class="form-group">
+                    <div class="single-element-widget">
+                        <div class="default-select mb-20" id="default-select">
+                            <select id="media_list" style="display: none;">
+                                {% for media in media_list %}
+                                    <option value="{{ media.media_name }}">{{ media.media_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="nice-select" tabindex="0">
+                                <span class="current">언론사 선택</span>
+                                <ul class="list mylist" style="max-height: 200px; overflow:auto;">
+                                    {% for media in media_list %}
+                                        <li data-value="{{ media.media_name }}" class="option">{{ media.media_name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="form-group">
+                    <div class="single-element-widget">
+                        <div class="default-select mb-20" id="default-select">
+                            <select id="media_list2" style="display: none;">
+                                {% for media in media_list %}
+                                    <option value="{{ media.media_name }}">{{ media.media_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="nice-select" tabindex="0">
+                                <span class="current">언론사 선택</span>
+                                <ul class="list mylist2" style="max-height: 200px; overflow:auto;">
+                                    {% for media in media_list %}
+                                        <li data-value="{{ media.media_name }}" class="option">{{ media.media_name }}</li>
+                                    {% endfor %}
+                                </ul>  
+                            </div>
+                            <button type="button" id ="analysis_btn" class="btn" style="margin-left: 10px;"><i class="ti-search">&nbsp;성향 분석</i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="width: 100%; margin-top: 50px;">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="wrap-loading display-none">
+    <div class="loading-container">
+        <div class="loading"></div>
+        <div id="loading-text">loading</div>
+    </div>                                                                                                                                                                                                                                                                                                                                       
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+    $('#analysis_btn').click(function() {
+        var media_name = $(".mylist .selected").text()
+        var media_name2 = $(".mylist2 .selected").text()
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'article_media_analysis' %}",
+            data: {
+                media_name: media_name,
+                media_name2: media_name2
+                // 'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            dataType: 'json',
+            success: function(data) {
+                // alert("data -> " + data)
+                var ctx = $("#myChart").get(0).getContext("2d");
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: data,
+                });
+            },
+            beforeSend:function(){
+                $('.wrap-loading').removeClass('display-none')
+            },
+            complete:function(){
+                $('.wrap-loading').addClass('display-none')
+            },
+            error: function(request, error) {
+                alert('전송 실패...')
+            }
+        })
+    })
+</script>
+{% endblock %}

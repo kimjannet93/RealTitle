@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}
+키워드 트렌드 분석
+{% endblock %}
+
+{% block content %}
+<div class="bradcam_area mybradcam_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&display=swap');
+                </style>
+                <div class="bradcam_text text-center">
+                    <h3>키워드 트렌드 분석</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 키워드 트렌드 -->
+<section class="blog_area section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="section_title mb-50 text-left">
+                    <h4>기사 검색 & 기간 별 빈도 수</h4>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-4">
+                <div class="form-group">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="search_keyword" placeholder='키워드를 입력하세요.' onfocus="this.placeholder = ''" onblur="this.placeholder = '키워드를 입력하세요.'">
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="search_keyword2" placeholder=' 키워드를 입력하세요.' onfocus="this.placeholder = ''" onblur="this.placeholder = '키워드를 입력하세요.'">
+                    </div>
+                        <!-- <input type="text" class="form-control" id="start_date" placeholder='시작 날짜를 입력하세요. ex)20200508' onfocus="this.placeholder = ''" onblur="this.placeholder = '시작 날짜를 입력하세요. ex)20200508'"> -->
+                        <p>StartDate: <input type="text" class="form-control" id="start_date" placeholder='시작 날짜를 입력하세요.' onfocus="this.placeholder = ''" onblur="this.placeholder = '시작 날짜를 입력하세요.'" ></p>
+                    <div class="input-group mb-3">
+                        <!-- <input type="text" class="form-control" id="end_date" placeholder='종료 날짜를 입력하세요. ex)20200508' onfocus="this.placeholder = ''" onblur="this.placeholder = '종료 날짜를 입력하세요. ex)20200508'">     -->
+                        <p>EndDate: <input type="text" class="form-control" id="end_date" placeholder='종료 날짜를 입력하세요.' onfocus="this.placeholder = ''" onblur="this.placeholder = '종료 날짜를 입력하세요.'" ></p>
+                    </div>
+                    <div class="input-group mb-3">
+                        <button id ="search_btn" class="btn" type="button"><i class="ti-search">&nbsp;검색</i></button>
+                    </div>    
+                </div>
+            </div>
+            <div style="width: 100%;">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="wrap-loading display-none">
+    <div class="loading-container">
+        <div class="loading"></div>
+        <div id="loading-text">loading</div>
+    </div>                                                                                                                                                                                                                                                                                                                                       
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+$( function() {
+    $("#start_date").datepicker({
+        todayBtn:  1,
+        autoclose: true,
+        dateFormat: 'yy-mm-dd',
+        dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+        maxDate: new Date()
+    }).on('change', function (selected) {
+        var minDate = new Date($("#start_date").val());
+        $('#end_date').datepicker('option', 'minDate', minDate);
+    });
+
+    $("#end_date").datepicker({
+        dateFormat: 'yy-mm-dd',
+        dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+        maxDate: 0
+    })
+        .on('change', function (selected) {
+            var maxDate = new Date($("#end_date").val());
+            $('#start_date').datepicker('option', 'maxDate', maxDate);
+        });
+  } );
+
+$('#search_btn').click(function() {
+    var search_keyword = $('#search_keyword').val()
+    var search_keyword2 = $('#search_keyword2').val()
+
+    var start_date = $('#start_date').val().split("-").join('')
+    var end_date = $('#end_date').val() .split("-").join('')
+
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'article_keyword_trend' %}",
+        data: {
+            search_keyword: search_keyword,
+            search_keyword2: search_keyword2,
+            start_date: start_date,
+            end_date: end_date
+            // 'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        dataType: 'json',
+        success: function(data) {
+            // alert("data -> " + data)
+            var ctx = $("#myChart").get(0).getContext("2d");
+            new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    scales: {
+                        x: {
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: '월'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: '기사 수'
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: '키워드로 검색된 월 별 기사 빈도 수'
+                    }
+                }
+            });
+        },
+        beforeSend:function(){
+            $('.wrap-loading').removeClass('display-none')
+        },
+        complete:function(){
+            $('.wrap-loading').addClass('display-none')
+        },
+        error: function(request, error) {
+            alert('검색된 결과가 없어요..ㅜㅜ')
+        }
+    })
+})
+</script>
+{% endblock %}
